@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Index</title>
+
+		<meta charset="utf-8" />
+
+		<link rel="stylesheet" type="text/css" href="css/reset.css">
+		<link rel="stylesheet" type="text/css" href="css/grid.css">
+		<link rel="stylesheet" type="text/css" href="css/styles.css">
+	</head>
+	<body>
+		<div id="container">
+			<div id="list-details">
+				<h1 class="list-name">TSK-MAIL</h1>
+				<p class="list-description">Compilation master list TSK-01</p>
+			</div>
+			<table id="master">
+				<colgroup>
+					<col span="1" id="col-item" />
+					<col span="1" id="col-date" />
+				</colgroup>
+				<thead>
+					<th>item</th>
+					<th>due date</th>
+				</thead>
+				<tr id="input-row">
+					<td><input id="td-new-item" type="text" placeholder="WRITE A NEW TASK..." /></td>
+					<td class="td-date"><input id="td-new-date" type="number" placeholder="1" value="1" /><span id="numerator">day(s)</span></td>
+				</tr>	
+				{loop="$taskList"}
+					{$value}
+				{/loop}
+ 				<!-- <tr>
+					<td class="td-item">Design concept for TSK-01</td>
+					<td class="td-date red">TODAY</td>
+				</tr>
+				<tr>
+					<td class="td-item">Finish TSK-01</td>
+					<td class="td-date">11 DEC 2015</td>
+				</tr>
+				<tr>
+					<td class="td-item">Finish IOOO</td>
+					<td class="td-date">01 FEB 2015</td>
+				</tr> -->
+			</table>
+		</div>
+		<script type="text/javascript" src="js/jquery-2.0.3.min.js"></script>
+		<script type="text/javascript">
+			$(function() {
+				$('#td-new-item').bind('keyup', function(e) {
+					if (e.keyCode === 13) { // 13 = enter
+						// submit to DB
+						$.ajax({
+							url: "action/submit.php",
+							method:"POST",
+							data: {
+								todo: $('#td-new-item').val(),
+								duedate: $('#td-new-date').val()
+								// due date
+							}
+						}).done(function(msg) {
+							// note: if successful, get data from server
+							// to  1) securely encode the data
+							// and 2) obtain database ID
+							msg = JSON.parse(msg);
+
+							console.log("Adding new item...");
+						
+							newItem  = '<tr>';
+							newItem += '<td class="td-item">' + $('#td-new-item').val() + '</td>';
+							newItem += '<td class="td-date red">TODAY</td>';
+							newItem += '</tr>';
+
+							$('#input-row').after(newItem);
+							// Empty the input
+							$('#td-new-item').val('');
+
+						});
+					}
+				});
+
+				$('#master').on('click', '.td-item', function() {
+					// mark it as complete.
+
+					node = $(this);
+
+					$.ajax({
+						url: "action/markcomplete.php",
+						method:"POST",
+						data: {
+							id: $(this).data('id')
+						}
+					}).done(function(msg) {
+						msg = JSON.parse(msg);
+						console.log("Deleting item...");
+
+						node.parent().fadeOut(300);
+					});
+				});
+			});
+		</script>
+	</body>
+</html>
